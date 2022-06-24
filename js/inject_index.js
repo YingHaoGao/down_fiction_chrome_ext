@@ -1,6 +1,20 @@
 // 注意，必须设置了run_at=document_start 此段代码才会生效
 document.addEventListener('DOMContentLoaded', function()
 {
+    // 第一版主使用 img 显示部分图片的应对
+    let dybz_img_replace = function() {
+        let href = location.href;
+    
+        if(href.indexOf("diyibanzhu") > -1) {
+            let imgs = "男人啊爱按暴醫逼擦潮操插吃抽处床春唇刺粗大洞逗硬儿反犯峰妇抚夫腹干搞根公宫勾股狠花滑坏魂鸡激夹奸交叫娇姐禁精进紧菊渴口裤胯快浪力楼乱裸妈毛迷靡妹摸嫩母娘尿咛女哦趴喷婆屁气枪窃骑妻情亲裙热日肉揉乳软润入塞骚色上舌射身深湿兽受舒爽水睡酥死烫痛舔天体挺头腿脱味慰吻握喔污下小性胸血穴阳痒药腰夜液野衣姨吟淫荫幽诱尤欲吁玉吮窄占征汁嘴,。.慾丢弄";
+    
+            for(let i = 1; i <= 168; i++) {
+                $(`em.n_${i}`).text(imgs[i-1]);
+            }
+        }
+    };
+
+    // 轮询页面的处理
     let appendFiction = function() {
         chrome.storage.sync.get(
             ["wmutong_tool_select_stage", "wmutong_tool_pitc_fiction_next_doc_id", "wmutong_tool_pitc_fiction_box_doc_id"],
@@ -8,6 +22,8 @@ document.addEventListener('DOMContentLoaded', function()
                 console.log(result);
                 if(result.wmutong_tool_select_stage == 3) {
                     if(result.wmutong_tool_pitc_fiction_box_doc_id) {
+                        dybz_img_replace();
+
                         let classStr = '';
                         let wmutong_tool_pitc_fiction_box_doc_id = JSON.parse(result.wmutong_tool_pitc_fiction_box_doc_id);
                         
@@ -89,6 +105,8 @@ document.addEventListener('DOMContentLoaded', function()
         let classes = [];
         let id = false;
 
+        dybz_img_replace();
+
         if($target.attr("class")) {
             classes = $target.attr("class").replace(" tools_select_doc", "").split(" ");
         }
@@ -96,6 +114,7 @@ document.addEventListener('DOMContentLoaded', function()
         if(!id) {
 
         }
+        console.log($target.text());
 
         chrome.runtime.sendMessage({origin: "inject", target: "background", type: "setFictionName", str: $("title").text()})
         chrome.runtime.sendMessage({origin: "inject", target: "background", type: "resetFiction"}, data => {
