@@ -27,22 +27,23 @@ document.addEventListener('DOMContentLoaded', function()
                         let classStr = '';
                         let wmutong_tool_pitc_fiction_box_doc_id = JSON.parse(result.wmutong_tool_pitc_fiction_box_doc_id);
                         
-                        if(wmutong_tool_pitc_fiction_box_doc_id.class && wmutong_tool_pitc_fiction_box_doc_id.class.length) wmutong_tool_pitc_fiction_box_doc_id.class.map(s => classStr += `.${s}`);
+                        if(wmutong_tool_pitc_fiction_box_doc_id.class && wmutong_tool_pitc_fiction_box_doc_id.class.length) wmutong_tool_pitc_fiction_box_doc_id.class.map(s => { if(s != "") {classStr += `.${s}`} });
                         else if(wmutong_tool_pitc_fiction_box_doc_id.id) classStr = `#${wmutong_tool_pitc_fiction_box_doc_id.id}`;
 
                         if(!$(classStr).length) {
                             if(wmutong_tool_pitc_fiction_box_doc_id.class && wmutong_tool_pitc_fiction_box_doc_id.class.length) classStr = `.${wmutong_tool_pitc_fiction_box_doc_id.class[0]}`;
                             else if(wmutong_tool_pitc_fiction_box_doc_id.id) classStr = `#${wmutong_tool_pitc_fiction_box_doc_id.id}`;
                         }
+                        // console.log(classStr, $(classStr));
+                        console.log(classStr);
                         let fictionStr = $(classStr).text();
-                        console.log(classStr, $(classStr));
 
                         chrome.runtime.sendMessage({origin: "inject", target: "background", type: "appendFiction", str: fictionStr}, data => {
                             if(result.wmutong_tool_pitc_fiction_next_doc_id) {
                                 let classStr = '';
                                 let wmutong_tool_pitc_fiction_next_doc_id = JSON.parse(result.wmutong_tool_pitc_fiction_next_doc_id);
                         
-                                if(wmutong_tool_pitc_fiction_next_doc_id.class && wmutong_tool_pitc_fiction_next_doc_id.class.length) wmutong_tool_pitc_fiction_next_doc_id.class.map(s => classStr += `.${s}`);
+                                if(wmutong_tool_pitc_fiction_next_doc_id.class && wmutong_tool_pitc_fiction_next_doc_id.class.length) wmutong_tool_pitc_fiction_next_doc_id.class.map(s => { if(s != "") {classStr += `.${s}`} });
                                 else if(wmutong_tool_pitc_fiction_next_doc_id.id) classStr = `#${wmutong_tool_pitc_fiction_next_doc_id.id}`;
                                 
                                 setTimeout(() => {
@@ -108,11 +109,22 @@ document.addEventListener('DOMContentLoaded', function()
         dybz_img_replace();
 
         if($target.attr("class")) {
-            classes = $target.attr("class").replace(" tools_select_doc", "").split(" ");
+            let newClassStr = $target.attr("class").replace("tools_select_doc", "");
+            if(newClassStr.indexOf(" ") > -1) classes = newClassStr.split(" ");
+            else if(newClassStr != "") classes = [newClassStr];
         }
+        console.log(classes, classes.length);
         if($target.attr("id")) id = $target.attr("id");
-        if(!id) {
+        if(!classes.length && !id) {
+            let $parents = $target.parents("[class]");
+            if($parents.length) {
+                let newClassStr = $parents.eq(0).attr("class").replace("tools_select_doc", "");
+                if(newClassStr.indexOf(" ") > -1) classes = newClassStr.split(" ");
+                else if(newClassStr != "") classes = [newClassStr];
 
+                console.log("newClassStr", classes, $parents.eq(0));
+                $target = $parents;
+            }   
         }
         console.log($target.text());
 
