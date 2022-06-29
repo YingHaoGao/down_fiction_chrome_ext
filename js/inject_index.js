@@ -45,7 +45,6 @@ document.addEventListener('DOMContentLoaded', function()
                             langPath: chrome.runtime.getURL('lang-data'),
                             corePath: chrome.runtime.getURL('js/tesseract-core.wasm.js'),
                             logger: m => {
-                                console.log(m)
                                 if($("#mutong_fiction_loading").length) {
                                     let sType = "";
                                     switch (m.status) {
@@ -69,7 +68,7 @@ document.addEventListener('DOMContentLoaded', function()
                                             break;
                                     }
 
-                                    $("#mutong_fiction_loading").find("span").text((m.progress.toFixed(2)*100).toFixed(0) + `${sType} - ` + `%(${i+1}/${imgs.length})`)
+                                    $("#mutong_fiction_loading").find("span").text(` ${sType} - ` + (m.progress.toFixed(2)*100).toFixed(0) + `%(${i+1}/${imgs.length})`)
                                 }
                             },
                         });
