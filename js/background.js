@@ -45,29 +45,7 @@ const MinWindow = function(options) {
 		$('body').append(dContainer);
 	}
 
-
-	/* ------------ 注入依赖 ------------ */
-	// 向页面注入jquery
-	const injectJquery = () => {
-		// 访问被检查的页面DOM需要使用inspectedWindow
-		// 简单例子：检测被检查页面是否使用了jQuery
-		chrome.devtools.inspectedWindow.eval("jQuery.fn.jquery", (result, isException) => {
-			if(isException) {
-				jsPath = 'js/jquery-3.3.1.min.js';
-				var temp = document.createElement('script');
-				temp.setAttribute('type', 'text/javascript');
-				temp.src = chrome.extension.getURL(jsPath);
-				temp.onload = () => {
-					// 放在页面不好看，执行完后移除掉
-					this.parentNode.removeChild(this);
-				};
-				document.body.appendChild(temp);
-			}
-		});
-	}
-
 	/* ------------ 执行 ------------ */
-	// injectJquery();
 	createDom();
 };
 
@@ -85,12 +63,10 @@ let setFictionName = name => {
 	fictionName = name;
 };
 let appendFiction = str => {
-	console.log(str);
 	fictionStr += `\n${str}`;
 };
 let resetFiction = () => {
 	fictionStr = ``;
-	console.log(fictionStr)
 };
 let getFiction = () => {
 	return fictionStr;
@@ -122,6 +98,22 @@ let resetFictionStorage = function() {
 		"wmutong_tool_pitc_fiction_box_doc_id": false
 	});
 }
+let getFictionImg = function(src, callback) {
+	let img = new Image();
+	img.onload = function(){
+		let canvas = document.createElement('canvas'),
+			width = img.width,
+			height = img.height;
+		canvas.width = width;
+		canvas.height = height;
+		canvas.getContext('2d').drawImage(img, 0, 0, width, height);
+		let base = canvas.toDataURL();
+		callback(base);
+
+		canvas.remove();
+	};
+	img.src = src;
+}
 
 fictionObj.setFictionName = setFictionName;
 fictionObj.appendFiction = appendFiction;
@@ -129,6 +121,7 @@ fictionObj.resetFiction = resetFiction;
 fictionObj.getFiction = getFiction;
 fictionObj.download = download;
 fictionObj.resetFictionStorage = resetFictionStorage;
+fictionObj.getFictionImg = getFictionImg;
 
 function getFictrionObj() {
 	return fictionObj;
@@ -137,7 +130,15 @@ function getFictrionObj() {
 chrome.runtime.onMessage.addListener((data, sender, sendRespone) => {
 	if(data) {
 		if(data.target == "background") {
-			fictionObj[data.type] && fictionObj[data.type](data.str);
+			switch (data.type) {
+				case "getFictionImg":
+					fictionObj.getFictionImg(data.src, sendRespone);
+					return true;
+				default:
+					fictionObj[data.type] && fictionObj[data.type](data.str);
+					sendRespone();
+					return true;
+			}
 		}
 	}
 })
